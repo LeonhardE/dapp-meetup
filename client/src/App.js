@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import SimpleStorageContract from "./contracts/SimpleStorage.json";
+import MeetupContract from "./contracts/Meetup.json";
 import getWeb3 from "./getWeb3";
 
 import "./App.css";
 
 class App extends Component {
-  state = { storageValue: 0, web3: null, accounts: null, contract: null };
+  state = { owner: null, Token: 2, web3: null, accounts: null, contract: null };
 
   componentDidMount = async () => {
     try {
@@ -17,9 +17,9 @@ class App extends Component {
 
       // Get the contract instance.
       const networkId = await web3.eth.net.getId();
-      const deployedNetwork = SimpleStorageContract.networks[networkId];
+      const deployedNetwork = MeetupContract.networks[networkId];
       const instance = new web3.eth.Contract(
-        SimpleStorageContract.abi,
+        MeetupContract.abi,
         deployedNetwork && deployedNetwork.address,
       );
 
@@ -38,15 +38,32 @@ class App extends Component {
   runExample = async () => {
     const { accounts, contract } = this.state;
 
-    // Stores a given value, 5 by default.
-    await contract.methods.set(5).send({ from: accounts[0] });
 
     // Get the value from the contract to prove it worked.
-    const response = await contract.methods.get().call();
+    const response = await contract.methods.getTokenAmount(accounts[0]).call();
+    const contractowner = await contract.methods.getowner().call();
 
     // Update state with the result.
-    this.setState({ storageValue: response });
+    this.setState({ Token: response, owner: contractowner });
+
   };
+
+  handleBuyToken = async (event) => {
+    const {accounts, contract} = this.state;
+    let amount = event.target[0].value;
+    await contract.methods.buyToken(amount).send({from: accounts[0]});
+    this.setState({Token: amount});
+    alert("The value you entered: " + amount);
+    event.preventDefault();
+  }
+
+  handleStorage = async (event) => {
+    const {accounts, contract} = this.state;
+    let data = event.target[0].value;
+    await contract.methods.set(data).send({from: accounts[0]});
+    alert("The value you entered: " + data);
+    event.preventDefault();
+  }
 
   render() {
     if (!this.state.web3) {
@@ -54,17 +71,22 @@ class App extends Component {
     }
     return (
       <div className="App">
-        <h1>Good to Go!</h1>
-        <p>Your Truffle Box is installed and ready.</p>
-        <h2>Smart Contract Example</h2>
-        <p>
-          If your contracts compiled and migrated successfully, below will show
-          a stored value of 5 (by default).
-        </p>
-        <p>
-          Try changing the value stored on <strong>line 42</strong> of App.js.
-        </p>
-        <div>The stored value is: {this.state.storageValue}</div>
+        <div>Owner: {this.state.owner}</div>
+        <div>Account: {this.state.accounts[0]}</div>
+        <div>Token Amount: {this.state.Token}</div>
+        <div>Buy Token:
+          <form onSubmit={this.handleBuyToken}>
+            <input type="text" name="amount" />
+            <input type="submit" value="Submit" />
+          </form> 
+        </div>
+        <div>Set Storage:
+          <form onSubmit={this.handleStorage}>
+            <input type="text" name="amount" />
+            <input type="submit" value="Submit" />
+          </form> 
+        </div>
+        
       </div>
     );
   }
