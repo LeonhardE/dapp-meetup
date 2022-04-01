@@ -33,7 +33,11 @@ contract Meetup {
   }
 
   function set(uint x) public {
-    storagedata = 10 + x;
+    storagedata = x;
+  }
+
+  function get() public view returns(uint) {
+    return storagedata;
   }
 
   function getowner() public view returns(address){
@@ -53,7 +57,7 @@ contract Meetup {
   }
 
   // add token to an address
-  function addToken(address useraddress, uint fund) private {
+  function addToken(address useraddress, uint fund) public {
     for (uint i = 0; i < tokenlist.length; i++) {
       if (tokenlist[i].owner == useraddress) {
         tokenlist[i].amount += fund;
