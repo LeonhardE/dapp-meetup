@@ -1,92 +1,107 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.21 <8.10.0;
+pragma solidity ^0.8.10;
 
 contract Meetup {
-  // user's Token
-  struct Token {
+  
+  struct userevent {
     address owner;
-    uint amount;
-  }
-  // user's prize
-  struct Prize {
-    address owner;
-    uint[10] list;
+    address[] participant;
+    uint deadline;
+    uint cost_owner;
+    uint[] cost_participant;
   }
 
-  address owner;
-
-  uint storagedata;
-  Token[] public tokenlist;
-  Prize[] public userprize;
-  // the price of prize
-  uint[10] private prizelist;
-
-  constructor() public {
-    owner = msg.sender;
-    for (uint i = 0; i < 10; i++) {
-      prizelist[i] = 2;
-    }
-    Token memory newaccount;
-    newaccount.amount = 0;
-    newaccount.owner = address(0x0);
-    tokenlist.push(newaccount);
+  struct prize {
+    string name;
+    uint price;
   }
 
-  function set(uint x) public {
-    storagedata = x;
+  address payable public owner;
+  mapping(address => uint) public Tokens;
+  mapping(address => string[]) public UserPrize;
+  mapping(uint => prize) public PrizeList;
+  uint prizecount;
+
+  constructor() payable {
+    owner = payable(msg.sender);
+    prizecount = 1;
+    prize memory newprize;
+    newprize.name = "iphone";
+    newprize.price = 10;
+    PrizeList[0] = newprize;
   }
 
-  function get() public view returns(uint) {
-    return storagedata;
-  }
-
+  // get contract owner
   function getowner() public view returns(address){
     return owner;
   }
 
-  // check if one address have token
-  function HaveToken(address useraddress) private view returns(bool) {
-    bool exist = false;
-    for (uint i = 0; i < tokenlist.length; i++) {
-      if (tokenlist[i].owner == useraddress) {
-        exist = true;
-        break;
-      }
-    }
-    return exist;
-  }
-
-  // add token to an address
-  function addToken(address useraddress, uint fund) public {
-    for (uint i = 0; i < tokenlist.length; i++) {
-      if (tokenlist[i].owner == useraddress) {
-        tokenlist[i].amount += fund;
-        break;
-      }
-    }
-  }
-
   // buy token from a different account than the contract owner
-  function buyTokens(uint amount) public {
+  function buyTokens(uint amount) external payable returns(bool) {
     // unfinished: pay ETH
-    addToken(msg.sender, amount);
+    uint tokenprice = amount * 1e16;
+    require(msg.sender != owner, "Contract owner cannot buy tokens");
+    require(msg.value >= tokenprice, "Ether not enough");
+    if (msg.sender == owner) {
+      return false;
+    }
+    (bool success, ) = owner.call{value: tokenprice}("");
+    require(success, "Failed to send Ether");
+    if (success) {
+      uint origin_amount = Tokens[msg.sender];
+      Tokens[msg.sender] = origin_amount + amount;
+    }
+    return success;
   }
 
-  function getTokenAmount(address useraddress) public returns (uint) {
-    if (!HaveToken(useraddress)) {
-      Token memory newaccount;
-      newaccount.owner = useraddress;
-      newaccount.amount = 10;
-      tokenlist.push(newaccount);
+  // get the token amount of an address
+  function getTokenAmount(address useraddress) public view returns(uint) {
+    return Tokens[useraddress];
+  }
+
+  // use tokens to buy a prize
+  function buyPrize(uint prizeid) external returns(bool) {
+    require(msg.sender != owner, "Contract owner cannot buy prize");
+    if (Tokens[msg.sender] < PrizeList[prizeid].price) {
+      return false;
     }
-    prizelist[0] = 10;
-    uint amount = 0;
-    for (uint i = 0; i < tokenlist.length; i++) {
-      if (tokenlist[i].owner == useraddress) {
-        amount = tokenlist[i].amount;
-        break;
-      }
+    uint origin_amount = Tokens[msg.sender];
+    Tokens[msg.sender] = origin_amount - PrizeList[prizeid].price;
+    UserPrize[msg.sender].push(PrizeList[prizeid].name);
+    return true;
+  }
+
+  // get the prizes a user obtains
+  function getUserPrize(address useraddress) public view returns(string[] memory) {
+    return UserPrize[useraddress];
+  }
+
+  // get prize info according to id
+  function getPrizeInfo(uint id) public view returns(prize memory) {
+    return PrizeList[id];
+  }
+
+  // add a prize by owner only
+  function addPrize(string memory name, uint price) public returns(bool) {
+    require(msg.sender == owner, "Only owner can add a prize");
+    prize memory newprize;
+    newprize.name = name;
+    newprize.price = price;
+    PrizeList[prizecount] = newprize;
+    prizecount = prizecount + 1;
+    return true;
+  }
+
+  // delete a prize by owner only
+  function deletePrize(uint prizeid) public returns(bool) {
+    require(msg.sender == owner, "Only owner can delete a prize");
+    if (prizeid >= prizecount) {
+      return false;
     }
-    return amount;
+    for (uint i = prizeid; i < prizecount - 1; i++) {
+      PrizeList[i] = PrizeList[i + 1];
+    }
+    prizecount = prizecount - 1;
+    return true;
   }
 }

@@ -5,7 +5,7 @@ import getWeb3 from "./getWeb3";
 import "./App.css";
 
 class App extends Component {
-  state = { owner: null, storage: 0, Token: 0, web3: null, accounts: null, contract: null };
+  state = { owner: null, Token: 0, web3: null, accounts: null, contract: null, prizelist: null };
 
   componentDidMount = async () => {
     try {
@@ -25,7 +25,7 @@ class App extends Component {
 
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance }, this.runExample);
+      this.setState({ web3, accounts, contract: instance }, this.initiate);
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -35,35 +35,33 @@ class App extends Component {
     }
   };
 
-  runExample = async () => {
+  initiate = async () => {
     const { accounts, contract } = this.state;
 
-
     // Get the value from the contract to prove it worked.
-    const storagedata = await contract.methods.get().call();
-    const response = await contract.methods.getTokenAmount(accounts[0]).call();
+    const tokenamount = await contract.methods.getTokenAmount(accounts[0]).call();
     const contractowner = await contract.methods.getowner().call();
+    
 
     // Update state with the result.
-    this.setState({ Token: response,storage: storagedata, owner: contractowner });
+    this.setState({ Token: tokenamount, owner: contractowner });
 
   };
 
   handleBuyToken = async (event) => {
-    const {accounts, contract} = this.state;
+    const {owner, accounts, contract, Token} = this.state;
     let amount = event.target[0].value;
-    await contract.methods.buyToken(amount).send({from: accounts[0]});
-    this.setState({Token: amount});
-    alert("The value you entered: " + amount);
-    event.preventDefault();
-  }
-
-  handleStorage = async (event) => {
-    const {accounts, contract} = this.state;
-    let data = event.target[0].value;
-    await contract.methods.set(data).send({from: accounts[0]});
-    alert("The value you entered: " + data);
-    this.setState({storage: data});
+    if (accounts[0] == owner) {
+      alert("Owner cannot buy tokens");
+    }
+    else {
+      let etherprice = Number(amount) * 1e16;
+      const response = contract.methods.buyTokens(amount).send({from: accounts[0], value: etherprice});
+      alert("The tokens you are going to buy: " + amount);
+      let newtoken = Number(Token) + Number(amount);
+      this.setState({Token: newtoken});
+      console.log(response)
+    }
     event.preventDefault();
   }
 
@@ -76,15 +74,9 @@ class App extends Component {
         <div>Owner: {this.state.owner}</div>
         <div>Account: {this.state.accounts[0]}</div>
         <div>Token Amount: {this.state.Token}</div>
+        <div>Current Token Price: 100 Tokens = 1 ETH</div>
         <div>Buy Token:
           <form onSubmit={this.handleBuyToken}>
-            <input type="text" name="amount" />
-            <input type="submit" value="Submit" />
-          </form> 
-        </div>
-        <div>Storage: {this.state.storage}</div>
-        <div>Set Storage:
-          <form onSubmit={this.handleStorage}>
             <input type="text" name="amount" />
             <input type="submit" value="Submit" />
           </form> 
