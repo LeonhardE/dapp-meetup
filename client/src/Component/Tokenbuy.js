@@ -64,6 +64,23 @@ class Tokenbuy extends Component {
     event.preventDefault();
   }
 
+  handleWithdraw = async (event) => {
+    const {owner, accounts, contract, Token} = this.state;
+    let amount = event.target[0].value;
+    if (accounts[0] === owner) {
+      alert("Owner cannot request withdraw");
+    }
+    else if(Token < amount) {
+      alert("Your token is not enough");
+    }
+    else {
+      const response = contract.methods.withdrawRequest(amount).send({from: accounts[0]});
+      alert("The tokens you have requested to withdraw: " + amount);
+      console.log(response)
+    }
+    event.preventDefault();
+  }
+
   render() {
     if (!this.state.web3) {
       return <div>Loading Web3, accounts, and contract...</div>;
@@ -74,9 +91,14 @@ class Tokenbuy extends Component {
         <div>Owner: {this.state.owner}</div>
         <div>Account: {this.state.accounts[0]}</div>
         <div>Token Amount: {this.state.Token}</div>
-        <div>Current Token Price: 100 Tokens = 1 ETH</div>
-        <div>Buy Token:
+        <div>Buy Token (1 ETH = 100 Tokens):
           <form onSubmit={this.handleBuyToken}>
+            <input type="text" name="amount" />
+            <input type="submit" value="Submit" />
+          </form> 
+        </div>
+        <div>Withdraw ETH (125 Tokens = 1 ETH):
+          <form onSubmit={this.handleWithdraw}>
             <input type="text" name="amount" />
             <input type="submit" value="Submit" />
           </form> 

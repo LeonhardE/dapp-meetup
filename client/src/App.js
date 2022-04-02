@@ -2,9 +2,9 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Dashboard from  './Component/Dashboard'
 import Token from './Component/Token'
-// import Search from './Component/Search'
-// import Gallery from './Component/Gallery'
-// import Setting from './Component/Setting'
+import Shop from './Component/Shop'
+import Purchased from './Component/Purchased'
+import Withdraw from './Component/Withdraw'
 
 
 function App() {
@@ -13,6 +13,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="token" element={<Token />} />
+        <Route path="shop" element={<Shop />} />
+        <Route path="purchased" element={<Purchased />} />
+        <Route path="withdraw" element={<Withdraw />} />
       </Routes>
     </BrowserRouter>
   );
