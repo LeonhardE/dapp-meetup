@@ -3,13 +3,15 @@ pragma solidity ^0.8.10;
 
 contract Meetup {
   
-  struct userevent {
-    address owner;
-    address[] participant;
-    uint deadline;
-    uint cost_owner;
-    uint[] cost_participant;
-  }
+  // struct userevent {
+  //   address owner;
+  //   address[] participant;
+  //   uint deadline;
+  //   string location;
+  //   string description;
+  //   uint cost_owner;
+  //   uint[] cost_participant;
+  // }
 
   struct prize {
     string name;
