@@ -36,18 +36,38 @@ contract Meetup {
 
   constructor() payable {
     owner = payable(msg.sender);
-    prizecount = 2;
+    prizecount = 6;
     withdrawcount = 0;
-    prize memory newprize;
-    newprize.name = "iPhone 13 Pro";
-    newprize.price = 20;
-    newprize.location = "prizephoto/prize0.jpeg";
-    PrizeList[0] = newprize;
+    prize memory newprize0;
+    newprize0.name = "Kindle";
+    newprize0.price = 5;
+    newprize0.location = "prizephoto/prize0.jpeg";
+    PrizeList[0] = newprize0;
     prize memory newprize1;
-    newprize1.name = "Macbook Pro";
-    newprize1.price = 50;
+    newprize1.name = "Nike Air Force";
+    newprize1.price = 8;
     newprize1.location = "prizephoto/prize1.jpeg";
     PrizeList[1] = newprize1;
+    prize memory newprize2;
+    newprize2.name = "Airpods Pro";
+    newprize2.price = 10;
+    newprize2.location = "prizephoto/prize2.jpeg";
+    PrizeList[2] = newprize2;
+    prize memory newprize3;
+    newprize3.name = "iPhone 13";
+    newprize3.price = 20;
+    newprize3.location = "prizephoto/prize3.jpeg";
+    PrizeList[3] = newprize3;
+    prize memory newprize4;
+    newprize4.name = "iPad Pro";
+    newprize4.price = 25;
+    newprize4.location = "prizephoto/prize4.jpeg";
+    PrizeList[4] = newprize4;
+    prize memory newprize5;
+    newprize5.name = "Macbook Pro";
+    newprize5.price = 50;
+    newprize5.location = "prizephoto/prize5.jpeg";
+    PrizeList[5] = newprize5;
   }
 
   // get contract owner

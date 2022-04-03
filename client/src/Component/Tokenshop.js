@@ -6,7 +6,9 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import { Button, CardActionArea, CardActions } from '@mui/material';
+import { CardActionArea, CardActions } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import Container from '@mui/material/Container';
 
 class Tokenshop extends Component {
   state = { owner: null, Token: 0, web3: null, accounts: null, contract: null, list: [], count: 0 };
@@ -91,33 +93,44 @@ class Tokenshop extends Component {
         <div>Owner: {this.state.owner}</div>
         <div>Account: {this.state.accounts[0]}</div>
         <div>Token Amount: {this.state.Token}</div>
-        {prizelist.map((prize) => (
-          <Card key={prize[1]} sx={{ maxWidth: 345 }}>
-            <CardActionArea>
-              <CardMedia
-                component="img"
-                height="140"
-                image={prize[0].location}
-                alt="green iguana"
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
-                  {prize[0].name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Price: {prize[0].price} Tokens
-                </Typography>
-              </CardContent>
-            </CardActionArea>
-            <CardActions>
-              <form onSubmit={this.handleBuy}>
-                <input type="hidden" name="id" value={prize[1]} />
-                <input type="hidden" name="price" value={prize[0].price} />
-                <input type="submit" value="Buy" />
-              </form>
-            </CardActions>
-          </Card>
-        ))}
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          <Grid container spacing={3}>
+            {prizelist.map((prize) => (
+              <Grid item xs={6} >
+                <Card key={prize[1]} sx={{ 
+                                          width: 345,
+                                          display: 'flex',
+                                          flexDirection: 'column'
+                                        }}>
+                  <CardActionArea>
+                    <CardMedia
+                      component="img"
+                      height="140"
+                      image={prize[0].location}
+                      alt="green iguana"
+                    />
+                    <CardContent>
+                      <Typography gutterBottom variant="h5" component="div">
+                        {prize[0].name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Price: {prize[0].price} Tokens
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                  <CardActions>
+                    <form onSubmit={this.handleBuy}>
+                      <input type="hidden" name="id" value={prize[1]} />
+                      <input type="hidden" name="price" value={prize[0].price} />
+                      <input type="submit" value="Buy" />
+                    </form>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+        
         
       </React.Fragment>
       
