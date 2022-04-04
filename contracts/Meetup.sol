@@ -18,15 +18,26 @@ contract Meetup {
   uint public postCount = 0;
   mapping(uint => Post) public posts;
   mapping(address => uint[]) public joinedEvents;
+  mapping(address => uint[]) public ownedEvents;
 
   // get total amount of posts
   function getPostAmount() public view returns(uint) {
     return postCount;
   }
 
-  // get total amount of posts
+  // get post at eventID
+  function getPost(uint _id) public view returns(Post memory) {
+    return posts[_id];
+  }
+
+  // get posts joined by the addr
   function getJoinedEvents(address addr) public view returns(uint[] memory) {
     return joinedEvents[addr];
+  }
+
+  // get posts created by the addr
+  function getOwnedEvents(address addr) public view returns(uint[] memory) {
+    return ownedEvents[addr];
   }
 
   struct Post {
@@ -38,6 +49,7 @@ contract Meetup {
     string location;
     uint maxNum;
     address[] participants;
+    bool[] parConfirmed;
     uint tipAmount;
     address payable author;
   }
@@ -90,8 +102,11 @@ contract Meetup {
 
     postCount ++;
     address[] memory _participants;
-    posts[postCount] = Post(postCount, _postHash, _title, _desc, _time, _location, _maxNum, _participants, 0, payable(msg.sender));
+    bool[] memory _parConfirmed;
+    posts[postCount] = Post(postCount, _postHash, _title, _desc, _time, _location, _maxNum, _participants, _parConfirmed, 0, payable(msg.sender));
     emit PostCreated(postCount, _postHash, _title, _desc, _time, _location, _maxNum, _participants, 0, payable(msg.sender));
+    Tokens[msg.sender] = Tokens[msg.sender] - 10;
+    ownedEvents[msg.sender].push(postCount);
   }
 
   // Tip author
@@ -130,8 +145,14 @@ contract Meetup {
 
   function joinEvent(uint _id) public {
     posts[_id].participants.push(msg.sender);
+    posts[_id].parConfirmed.push(false);
     joinedEvents[msg.sender].push(_id);
     Tokens[msg.sender] = Tokens[msg.sender] - 5;
+  }
+
+  function confirmParticipant(uint _id, uint _parIndex) public {
+    posts[_id].parConfirmed[_parIndex] = true;
+    Tokens[posts[_id].participants[_parIndex]] = Tokens[posts[_id].participants[_parIndex]] + 6;
   }
 
   //

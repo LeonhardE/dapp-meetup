@@ -31,6 +31,12 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Joined Events" />
     </ListItemButton>
+    <ListItemButton component={NavLink} to="/owned">
+      <ListItemIcon>
+      <FormatListNumberedIcon />
+      </ListItemIcon>
+      <ListItemText primary="Your Events" />
+    </ListItemButton>
     <ListItemButton component={NavLink} to="/token">
       <ListItemIcon>
         <AccountBalanceIcon />

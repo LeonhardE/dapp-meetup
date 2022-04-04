@@ -38,6 +38,7 @@ export class UploadImage extends Component {
                       id="outlined-multiline-static"
                       ref={(input) => { this.description = input }}
                       label="Description"
+                      placeholder="description"
                       multiline
                       rows={8}
                     />
