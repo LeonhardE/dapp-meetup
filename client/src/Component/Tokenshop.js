@@ -96,8 +96,8 @@ class Tokenshop extends Component {
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Grid container spacing={3}>
             {prizelist.map((prize) => (
-              <Grid item xs={6} >
-                <Card key={prize[1]} sx={{ 
+              <Grid key={prize[1]} item xs={6} >
+                <Card sx={{ 
                                           width: 345,
                                           display: 'flex',
                                           flexDirection: 'column'

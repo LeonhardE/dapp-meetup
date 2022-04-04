@@ -21,8 +21,8 @@ import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
 
 
-class Event extends Component {
-  state = { owner: null, Token: 0, web3: null, accounts: null, contract: null, posts: []};
+class HandleJoinedEvents extends Component {
+  state = { owner: null, Token: 0, web3: null, accounts: null, contract: null, posts: [], joinedPosts: []};
 
   componentDidMount = async () => {
     try {
@@ -40,6 +40,7 @@ class Event extends Component {
         deployedNetwork && deployedNetwork.address,
       );
 
+      // fetch all posts
       const postCount = await instance.methods.postCount().call()
       this.setState({ postCount:postCount })
       // Load images
@@ -53,6 +54,16 @@ class Event extends Component {
       for (var i = 0; i < this.state.posts.length; i++) {
           console.log(this.state.posts[i])
         }
+
+      // const postCount = await instance.methods.postCount().call()
+      const joinedPosts = await instance.methods.getJoinedEvents(accounts[0]).call()
+      this.setState({ joinedPosts:joinedPosts })
+      console.log("joined posts length:", joinedPosts.length)
+      console.log("joinedpost:", joinedPosts)
+      console.log("printing joined posts:")
+      for (var i = 0; i < this.state.joinedPosts.length; i++) {
+          console.log(this.state.joinedPosts[i])
+        }
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
       this.setState({ web3, accounts, contract: instance }, this.initiate);
@@ -65,37 +76,7 @@ class Event extends Component {
     }
   };
 
-  handleJoin = async (event) => {
-    event.preventDefault();
-    console.log("printing posts:")
-      for (var i = 0; i < this.state.posts.length; i++) {
-          console.log(this.state.posts[i])
-        }
-    const {owner, accounts, contract, Token} = this.state;
-    let id = event.target[0].value;
-    console.log("handleJoin:indexOfAllPosts=",id);
-    if (accounts[0] === this.state.posts[id].author) {
-      alert("Cannot join your own event.");
-    }
-    // else if (Number(Token) < Number(price)) {
-    //   alert("You don't have enough Tokens.")
-    // }
-    else {
-      const eventID = this.state.posts[id].id;
-      const allowed = await contract.methods.checkJoinEventAbility(eventID, accounts[0]).call();
-      if (allowed.toString() === "true") {
-        var answer = window.confirm("Spend 5 tokens and join this event?");
-        if (answer) {
-          contract.methods.joinEvent(eventID).send({from: accounts[0]});
-        }
-        else {
-          return;
-        }
-              
-      } else {
-        alert('Cannot join this event.');
-      }
-    }
+  handleQuit = async (event) => {
     event.preventDefault();
   }
 
@@ -106,19 +87,20 @@ class Event extends Component {
     }
 
     let posts = this.state.posts
-    if (posts.length === 0) {
-      return <div>No events yet</div>;
+    let joinedPosts = this.state.joinedPosts
+    if (joinedPosts.length === 0) {
+      return <div>No joined events yet</div>;
     }
 
     return (
       <React.Fragment>
-        <Title>Join events and get rewards!</Title>
+        <Title>You've joined: </Title>
 
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Grid container spacing={3}>
-            {posts.map((post) => (
-              <Grid key={post.id} item xs={6} >
-                <Card sx={{ 
+            {joinedPosts.map((eventID) => (
+              <Grid item xs={6} >
+                <Card key={eventID} sx={{ 
                                           width: 345,
                                           display: 'flex',
                                           flexDirection: 'column'
@@ -127,28 +109,28 @@ class Event extends Component {
                     <CardMedia
                       component="img"
                       height="140"
-                      image={"https://ipfs.infura.io/ipfs/"+post.hash}
+                      image={"https://ipfs.infura.io/ipfs/"+posts[eventID-1].hash}
                       alt="green iguana"
                     />
                     <CardContent>
                       <Typography gutterBottom variant="h5" component="div">
-                        {post.title?post.title:"title"}
+                        {posts[eventID-1].title?posts[eventID-1].title:"title"}
                       </Typography> 
                       <Typography variant="body2" color="text.secondary">
-                        Time: {post.time?post.time:"time"}
+                        Time: {posts[eventID-1].time?posts[eventID-1].time:"time"}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Location: {post.location?post.location:"location"}
+                        Location: {posts[eventID-1].location?posts[eventID-1].location:"location"}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {post.description}
+                        {posts[eventID-1].description}
                       </Typography>
                     </CardContent>
                   </CardActionArea>
                   <CardActions>
-                    <form onSubmit={this.handleJoin}>
-                      <input type="hidden" name="id" value={posts.indexOf(post)} />
-                      <input type="submit" value="Join" />
+                    <form onSubmit={this.handleQuit}>
+                      <input type="hidden" name="id" value={eventID} />
+                      <input type="submit" value="Quit" />
                     </form>
                   </CardActions>
                 </Card>
@@ -163,5 +145,5 @@ class Event extends Component {
   }
 }
 
-export default Event
+export default HandleJoinedEvents
 

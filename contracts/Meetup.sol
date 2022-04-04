@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
+pragma solidity >=0.4.21 <8.10.0;
+
 
 contract Meetup {
   
@@ -12,6 +13,133 @@ contract Meetup {
   //   uint cost_owner;
   //   uint[] cost_participant;
   // }
+  string public AppName = "Decentralized Meetup";
+  // Store posts
+  uint public postCount = 0;
+  mapping(uint => Post) public posts;
+  mapping(address => uint[]) public joinedEvents;
+
+  // get total amount of posts
+  function getPostAmount() public view returns(uint) {
+    return postCount;
+  }
+
+  // get total amount of posts
+  function getJoinedEvents(address addr) public view returns(uint[] memory) {
+    return joinedEvents[addr];
+  }
+
+  struct Post {
+    uint id;
+    string hash;
+    string title;
+    string description;
+    string time;
+    string location;
+    uint maxNum;
+    address[] participants;
+    uint tipAmount;
+    address payable author;
+  }
+
+  event PostCreated(
+    uint id,
+    string hash,
+    string title,
+    string description,
+    string time,
+    string location,
+    uint maxNum,
+    address[] participants,
+    uint tipAmount,
+    address payable author
+  );
+
+  event PostTipped(
+    uint id,
+    string hash,
+    string description,
+    uint tipAmount,
+    address payable author
+  );
+
+  event EventJoined(
+    uint id,
+    string hash,
+    string title,
+    string description,
+    string time,
+    string location,
+    uint maxNum,
+    address[] participants,
+    address payable author
+  );
+
+  event FireEvent(
+    uint id,
+    string hash,
+    bool hasJoined
+  );
+
+  // Create posts
+  function uploadPost(string memory _postHash, string memory _title, string memory _desc, string memory _time, string memory _location, uint _maxNum) public {
+    require(bytes(_postHash).length > 0, 'Imagehash cannot be empty');
+    require(bytes(_title).length > 0, 'Post title cannot be empty');
+    require(bytes(_desc).length > 0, 'Post description cannot be empty');
+    require(msg.sender != address(0x0), 'Empty author');
+
+    postCount ++;
+    address[] memory _participants;
+    posts[postCount] = Post(postCount, _postHash, _title, _desc, _time, _location, _maxNum, _participants, 0, payable(msg.sender));
+    emit PostCreated(postCount, _postHash, _title, _desc, _time, _location, _maxNum, _participants, 0, payable(msg.sender));
+  }
+
+  // Tip author
+  function tipAuthor(uint _id) public payable {
+    require(_id > 0 && _id <= postCount);
+    // fetch post
+    Post memory _post = posts[_id];
+    address payable _author = _post.author;
+    _author.transfer(msg.value);
+    _post.tipAmount += msg.value;
+    posts[_id] = _post;
+  }
+
+  // Join event
+  function checkJoinEventAbility(uint _id, address sender) public view returns(bool) {
+    require(_id > 0 && _id <= postCount, 'invalid event id');
+    require(sender != address(0x0), 'Empty participant');
+
+    // check exceeding max participants
+    if (posts[_id].participants.length >= posts[_id].maxNum) {
+      return false;
+    }
+    // check if already joined
+    bool hasJoined = false;
+    for (uint i = 0; i < joinedEvents[sender].length; i++) {
+
+      if (_id == joinedEvents[sender][i]) {
+        hasJoined = true;
+      }
+    }
+    if (hasJoined) {
+      return false;
+    }    
+    return true;
+  }
+
+  function joinEvent(uint _id) public {
+    posts[_id].participants.push(msg.sender);
+    joinedEvents[msg.sender].push(_id);
+    Tokens[msg.sender] = Tokens[msg.sender] - 5;
+  }
+
+  //
+
+  // Quit event
+
+  // Confirm attendance
+
 
   struct prize {
     string name;

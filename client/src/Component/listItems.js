@@ -8,6 +8,8 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import AddToPhotosIcon from '@mui/icons-material/AddToPhotos';
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 
 export const mainListItems = (
   <React.Fragment>
@@ -16,6 +18,18 @@ export const mainListItems = (
         <DashboardIcon />
       </ListItemIcon>
       <ListItemText primary="Dashboard" />
+    </ListItemButton>
+    <ListItemButton component={NavLink} to="/create">
+      <ListItemIcon>
+      <AddToPhotosIcon />
+      </ListItemIcon>
+      <ListItemText primary="Create Event" />
+    </ListItemButton>
+    <ListItemButton component={NavLink} to="/joined">
+      <ListItemIcon>
+      <FormatListNumberedIcon />
+      </ListItemIcon>
+      <ListItemText primary="Joined Events" />
     </ListItemButton>
     <ListItemButton component={NavLink} to="/token">
       <ListItemIcon>
