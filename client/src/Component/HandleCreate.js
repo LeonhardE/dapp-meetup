@@ -9,7 +9,7 @@ const ipfs = ipfsClient({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' 
 
 
 class HandleCreate extends Component {
-  state = { owner: null, Token: 0, web3: null, accounts: null, contract: null, prizelist: null };
+  state = { owner: null, Token: 0, web3: null, accounts: null, contract: null};
 
   componentDidMount = async () => {
     try {
@@ -46,7 +46,6 @@ class HandleCreate extends Component {
     const tokenamount = await contract.methods.getTokenAmount(accounts[0]).call();
     const contractowner = await contract.methods.getowner().call();
     
-
     // Update state with the result.
     this.setState({ Token: tokenamount, owner: contractowner });
 
@@ -67,20 +66,30 @@ class HandleCreate extends Component {
   }
 
   uploadImage = (title, description, time, location, maxNum) => {
-    console.log("Submitting file to ipfs... title=", title, "description=", description, "maxNum=", maxNum)
-    console.log(ipfs)
-    //adding file to the IPFS
-    ipfs.add(this.state.buffer, (error, result) => {
-      console.log('Success! Ipfs result', result)
-      if(error) {
-        console.error('error!!!!,', error)
-        return
-      }
-      this.setState({ loading: true })
-      this.state.contract.methods.uploadPost(result[0].hash, title, description, time, location, maxNum).send({ from: this.state.accounts[0] }).on('transactionHash', (hash) => {
-        this.setState({ loading: false })
+    if (this.state.accounts[0] === this.state.owner) {
+      alert("Owner cannot create events");
+    }
+    else if (Number(this.state.Token) < 10) {
+      alert("You don't have enough tokens to create an event");
+    }
+    else {
+      let newtoken = Number(this.state.Token) - 10;
+      console.log("Submitting file to ipfs... title=", title, "description=", description, "maxNum=", maxNum)
+      console.log(ipfs)
+      //adding file to the IPFS
+      ipfs.add(this.state.buffer, (error, result) => {
+        console.log('Success! Ipfs result', result)
+        if(error) {
+          console.error('error!!!!,', error)
+          return
+        }
+        this.setState({ loading: true })
+        this.state.contract.methods.uploadPost(result[0].hash, title, description, time, location, maxNum).send({ from: this.state.accounts[0] }).on('transactionHash', (hash) => {
+        this.setState({ loading: false, Token: newtoken })
+        
+        })
       })
-    })
+    }
   }
 
   render() {
@@ -90,6 +99,9 @@ class HandleCreate extends Component {
     return (
       <React.Fragment>
         <Title>Create new events here!</Title>
+        <div>Owner: {this.state.owner}</div>
+        <div>Account: {this.state.accounts[0]}</div>
+        <div>Token Amount: {this.state.Token}</div>
         <UploadImage
               images={this.state.images}
               captureFile={this.captureFile}

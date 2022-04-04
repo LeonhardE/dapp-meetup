@@ -23,7 +23,7 @@ export const mainListItems = (
       <ListItemIcon>
       <AddToPhotosIcon />
       </ListItemIcon>
-      <ListItemText primary="Create Event" />
+      <ListItemText primary="Create Events" />
     </ListItemButton>
     <ListItemButton component={NavLink} to="/joined">
       <ListItemIcon>

@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
 
 export class UploadImage extends Component {
 
@@ -12,7 +10,7 @@ export class UploadImage extends Component {
             <div className="content col-md-4">
             </div>
             <div className="content col-md-4">
-              <h2>Upload Image</h2>
+              <h2>Submit Event</h2>
               <form onSubmit={(event) => {
                 event.preventDefault()
                 const title = this.title.value

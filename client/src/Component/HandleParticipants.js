@@ -1,25 +1,9 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import LinkUI from '@mui/material/Link';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
+
 import Title from './Title';
 import { Component } from "react";
 import MeetupContract from "../contracts/Meetup.json";
 import getWeb3 from "../getWeb3";
-
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Typography from '@mui/material/Typography';
-import { CardActionArea, CardActions } from '@mui/material';
-import Grid from '@mui/material/Grid';
-import Container from '@mui/material/Container';
-import { useChecklist } from 'react-checklist';
 
 
 class HandleParticipants extends Component {
@@ -57,6 +41,12 @@ class HandleParticipants extends Component {
     }
   };
 
+  checkHost = () => {
+    var answer = window.confirm("Confirm participation?");
+    if (answer) {
+      this.state.contract.methods.confirmHost(this.state.post.id).send({from: this.state.accounts[0]});
+    }
+  }
 
   checkParticipant = (addr) => {
     var answer = window.confirm("Confirm participation?");
@@ -78,7 +68,7 @@ class HandleParticipants extends Component {
     if (!post) {
       return <div>No post found</div>;
     }
-    if (this.state.accounts[0] != post.author) {
+    if (this.state.accounts[0] !== post.author) {
       return <div>Permission Denied</div>;
     }
     console.log(post);
@@ -87,8 +77,9 @@ class HandleParticipants extends Component {
     return (
       <React.Fragment>
         <Title>All participants: </Title>
-
-        <h3>id={this.props.id}</h3>
+        <ItemCount count = {participants.length} />
+        <h3>Event ID={this.props.id}</h3>
+        <Item message={"Host: " + post.author} handleClick={this.checkHost} confirmed={post.hostConfirmed} />
         {
           participants.map((user, i) =>
             <Item message={user} handleClick={this.checkParticipant} confirmed={parConfirmed[i]}/>)
@@ -107,13 +98,6 @@ class HandleParticipants extends Component {
 }
 
 export default HandleParticipants
-
-
-
-
-
-
-
 
 
 class Item extends React.Component {

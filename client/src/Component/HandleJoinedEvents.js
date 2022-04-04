@@ -1,12 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import LinkUI from '@mui/material/Link';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
+
 import Title from './Title';
 import { Component } from "react";
 import MeetupContract from "../contracts/Meetup.json";
@@ -44,14 +37,14 @@ class HandleJoinedEvents extends Component {
       const postCount = await instance.methods.postCount().call()
       this.setState({ postCount:postCount })
       // Load images
-      for (var i = 1; i <= postCount; i++) {
+      for (let i = 1; i <= postCount; i++) {
         const post = await instance.methods.posts(i).call()
         this.setState({
           posts: [...this.state.posts, post]
         })
       }
       console.log("printing posts:")
-      for (var i = 0; i < this.state.posts.length; i++) {
+      for (let i = 0; i < this.state.posts.length; i++) {
           console.log(this.state.posts[i])
         }
 
@@ -61,7 +54,7 @@ class HandleJoinedEvents extends Component {
       console.log("joined posts length:", joinedPosts.length)
       console.log("joinedpost:", joinedPosts)
       console.log("printing joined posts:")
-      for (var i = 0; i < this.state.joinedPosts.length; i++) {
+      for (let i = 0; i < this.state.joinedPosts.length; i++) {
           console.log(this.state.joinedPosts[i])
         }
       // Set web3, accounts, and contract to the state, and then proceed with an
@@ -76,8 +69,36 @@ class HandleJoinedEvents extends Component {
     }
   };
 
+  initiate = async () => {
+    const { accounts, contract } = this.state;
+
+    // Get the value from the contract to prove it worked.
+    const tokenamount = await contract.methods.getTokenAmount(accounts[0]).call();
+    const contractowner = await contract.methods.getowner().call();
+    
+    // Update state with the result.
+    this.setState({ Token: tokenamount, owner: contractowner });
+
+  };
+
   handleQuit = async (event) => {
     event.preventDefault();
+    let id = event.target[0].value;
+    let post = await this.state.contract.methods.getPost(id).call();
+    console.log(post)
+    let userid = post.participants.indexOf(this.state.accounts[0]);
+    console.log(userid)
+    let confirm = post.parConfirmed[userid];
+    console.log(confirm)
+    if (confirm.toString() === "true") {
+      alert("You can't quit an event you already participate in.")
+    }
+    else {
+      this.state.contract.methods.quitEvent(id).send({from: this.state.accounts[0]});
+      alert("Quit Success")
+      let newtoken = Number(this.state.Token) + 4;
+      this.setState({ Token: newtoken})
+    }
   }
 
 
@@ -89,18 +110,27 @@ class HandleJoinedEvents extends Component {
     let posts = this.state.posts
     let joinedPosts = this.state.joinedPosts
     if (joinedPosts.length === 0) {
-      return <div>No joined events yet</div>;
+      return (
+        <React.Fragment>
+          <div>Owner: {this.state.owner}</div>
+          <div>Account: {this.state.accounts[0]}</div>
+          <div>Token Amount: {this.state.Token}</div>
+          <div>No joined events yet</div>
+        </React.Fragment>
+      );
     }
 
     return (
       <React.Fragment>
-        <Title>You've joined: </Title>
-
+        <Title>Joined Events </Title>
+        <div>Owner: {this.state.owner}</div>
+        <div>Account: {this.state.accounts[0]}</div>
+        <div>Token Amount: {this.state.Token}</div>
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Grid container spacing={3}>
             {joinedPosts.map((eventID) => (
-              <Grid item xs={6} >
-                <Card key={eventID} sx={{ 
+              <Grid key={eventID} item xs={6} >
+                <Card sx={{ 
                                           width: 345,
                                           display: 'flex',
                                           flexDirection: 'column'

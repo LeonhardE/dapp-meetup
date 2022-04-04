@@ -20,7 +20,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { mainListItems } from './listItems';
 // import Chart from './Chart';
 // import Deposits from './Deposits';
-import Event from './Event';
+
 import { useParams } from 'react-router-dom'
 import HandleParticipants from './HandleParticipants';
 
@@ -121,7 +121,7 @@ function DashboardContent() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Dashboard
+              Confirmation
             </Typography>
           </Toolbar>
         </AppBar>

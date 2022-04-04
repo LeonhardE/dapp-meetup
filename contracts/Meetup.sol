@@ -4,15 +4,6 @@ pragma solidity >=0.4.21 <8.10.0;
 
 contract Meetup {
   
-  // struct userevent {
-  //   address owner;
-  //   address[] participant;
-  //   uint deadline;
-  //   string location;
-  //   string description;
-  //   uint cost_owner;
-  //   uint[] cost_participant;
-  // }
   string public AppName = "Decentralized Meetup";
   // Store posts
   uint public postCount = 0;
@@ -50,6 +41,7 @@ contract Meetup {
     uint maxNum;
     address[] participants;
     bool[] parConfirmed;
+    bool hostConfirmed;
     uint tipAmount;
     address payable author;
   }
@@ -98,12 +90,12 @@ contract Meetup {
     require(bytes(_postHash).length > 0, 'Imagehash cannot be empty');
     require(bytes(_title).length > 0, 'Post title cannot be empty');
     require(bytes(_desc).length > 0, 'Post description cannot be empty');
-    require(msg.sender != address(0x0), 'Empty author');
+    require(msg.sender != owner, 'Owner cannot create post');
 
     postCount ++;
     address[] memory _participants;
     bool[] memory _parConfirmed;
-    posts[postCount] = Post(postCount, _postHash, _title, _desc, _time, _location, _maxNum, _participants, _parConfirmed, 0, payable(msg.sender));
+    posts[postCount] = Post(postCount, _postHash, _title, _desc, _time, _location, _maxNum, _participants, _parConfirmed, false, 0, payable(msg.sender));
     emit PostCreated(postCount, _postHash, _title, _desc, _time, _location, _maxNum, _participants, 0, payable(msg.sender));
     Tokens[msg.sender] = Tokens[msg.sender] - 10;
     ownedEvents[msg.sender].push(postCount);
@@ -155,11 +147,40 @@ contract Meetup {
     Tokens[posts[_id].participants[_parIndex]] = Tokens[posts[_id].participants[_parIndex]] + 6;
   }
 
-  //
+  function confirmHost(uint _id) public {
+    posts[_id].hostConfirmed = true;
+    Tokens[posts[_id].author] = Tokens[posts[_id].author] + 12;
+  }
 
   // Quit event
+  function quitEvent(uint _id) public {
+    uint index = 0;
+    for (uint i = 0; i < posts[_id].participants.length; i++) {
+      if (posts[_id].participants[i] == msg.sender) {
+        index = i;
+        break;
+      }
+    }
+    for (uint i = index; i < posts[_id].participants.length - 1; i++) {
+      posts[_id].participants[i] = posts[_id].participants[i + 1];
+      posts[_id].parConfirmed[i] = posts[_id].parConfirmed[i + 1];
+    }
+    posts[_id].participants.pop();
+    posts[_id].parConfirmed.pop();
 
-  // Confirm attendance
+    for (uint i = 0; i < joinedEvents[msg.sender].length; i++) {
+      if (joinedEvents[msg.sender][i] == _id) {
+        index = i;
+        break;
+      }
+    }
+    for (uint i = index; i < joinedEvents[msg.sender].length - 1; i++) {
+      joinedEvents[msg.sender][i] = joinedEvents[msg.sender][i + 1];
+    }
+    joinedEvents[msg.sender].pop();
+    Tokens[msg.sender] = Tokens[msg.sender] + 4;
+  }
+
 
 
   struct prize {

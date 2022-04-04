@@ -1,12 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import LinkUI from '@mui/material/Link';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
+
 import Title from './Title';
 import { Component } from "react";
 import MeetupContract from "../contracts/Meetup.json";
@@ -44,14 +37,14 @@ class HandleOwnedEvents extends Component {
       const postCount = await instance.methods.postCount().call()
       this.setState({ postCount:postCount })
       // Load images
-      for (var i = 1; i <= postCount; i++) {
+      for (let i = 1; i <= postCount; i++) {
         const post = await instance.methods.posts(i).call()
         this.setState({
           posts: [...this.state.posts, post]
         })
       }
       console.log("printing posts:")
-      for (var i = 0; i < this.state.posts.length; i++) {
+      for (let i = 0; i < this.state.posts.length; i++) {
           console.log(this.state.posts[i])
         }
 
@@ -61,7 +54,7 @@ class HandleOwnedEvents extends Component {
       console.log("owned posts length:", ownedPosts.length)
       console.log("ownedposts:", ownedPosts)
       console.log("printing owned posts:")
-      for (var i = 0; i < this.state.ownedPosts.length; i++) {
+      for (let i = 0; i < this.state.ownedPosts.length; i++) {
           console.log(this.state.ownedPosts[i])
         }
       // Set web3, accounts, and contract to the state, and then proceed with an
@@ -74,6 +67,18 @@ class HandleOwnedEvents extends Component {
       );
       console.error(error);
     }
+  };
+
+  initiate = async () => {
+    const { accounts, contract } = this.state;
+
+    // Get the value from the contract to prove it worked.
+    const tokenamount = await contract.methods.getTokenAmount(accounts[0]).call();
+    const contractowner = await contract.methods.getowner().call();
+    
+    // Update state with the result.
+    this.setState({ Token: tokenamount, owner: contractowner });
+
   };
 
   handleDelete = async (event) => {
@@ -89,13 +94,22 @@ class HandleOwnedEvents extends Component {
     let posts = this.state.posts
     let ownedPosts = this.state.ownedPosts
     if (ownedPosts.length === 0) {
-      return <div>You haven't created any event yet</div>;
+      return (
+        <React.Fragment>
+          <div>Owner: {this.state.owner}</div>
+          <div>Account: {this.state.accounts[0]}</div>
+          <div>Token Amount: {this.state.Token}</div>
+          <div>No created events yet</div>
+        </React.Fragment>
+      );
     }
 
     return (
       <React.Fragment>
-        <Title>You've created: </Title>
-
+        <Title>Created Events </Title>
+        <div>Owner: {this.state.owner}</div>
+        <div>Account: {this.state.accounts[0]}</div>
+        <div>Token Amount: {this.state.Token}</div>
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Grid container spacing={3}>
             {ownedPosts.map((eventID) => (

@@ -1,12 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import LinkUI from '@mui/material/Link';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
+
 import Title from './Title';
 import { Component } from "react";
 import MeetupContract from "../contracts/Meetup.json";
@@ -50,7 +43,7 @@ class Event extends Component {
         })
       }
       console.log("printing posts:")
-      for (var i = 0; i < this.state.posts.length; i++) {
+      for (let i = 0; i < this.state.posts.length; i++) {
           console.log(this.state.posts[i])
         }
       // Set web3, accounts, and contract to the state, and then proceed with an
@@ -65,6 +58,18 @@ class Event extends Component {
     }
   };
 
+  initiate = async () => {
+    const { accounts, contract } = this.state;
+
+    // Get the value from the contract to prove it worked.
+    const tokenamount = await contract.methods.getTokenAmount(accounts[0]).call();
+    const contractowner = await contract.methods.getowner().call();
+    
+    // Update state with the result.
+    this.setState({ Token: tokenamount, owner: contractowner });
+
+  };
+
   handleJoin = async (event) => {
     event.preventDefault();
     console.log("printing posts:")
@@ -73,20 +78,26 @@ class Event extends Component {
         }
     const {owner, accounts, contract, Token} = this.state;
     let id = event.target[0].value;
+    let price = 5;
     console.log("handleJoin:indexOfAllPosts=",id);
-    if (accounts[0] === this.state.posts[id].author) {
+    if (accounts[0] === owner) {
+      alert("Contract owner cannot join events.")
+    }
+    else if (accounts[0] === this.state.posts[id].author) {
       alert("Cannot join your own event.");
     }
-    // else if (Number(Token) < Number(price)) {
-    //   alert("You don't have enough Tokens.")
-    // }
+    else if (Number(Token) < Number(price)) {
+      alert("You don't have enough Tokens.")
+    }
     else {
       const eventID = this.state.posts[id].id;
       const allowed = await contract.methods.checkJoinEventAbility(eventID, accounts[0]).call();
       if (allowed.toString() === "true") {
         var answer = window.confirm("Spend 5 tokens and join this event?");
         if (answer) {
+          let newtoken = Number(Token) - Number(price)
           contract.methods.joinEvent(eventID).send({from: accounts[0]});
+          this.setState({Token: newtoken})
         }
         else {
           return;
@@ -107,13 +118,22 @@ class Event extends Component {
 
     let posts = this.state.posts
     if (posts.length === 0) {
-      return <div>No events yet</div>;
+      return (
+        <React.Fragment>
+          <div>Owner: {this.state.owner}</div>
+          <div>Account: {this.state.accounts[0]}</div>
+          <div>Token Amount: {this.state.Token}</div>
+          <div>No events yet</div>
+        </React.Fragment>
+      );
     }
 
     return (
       <React.Fragment>
         <Title>Join events and get rewards!</Title>
-
+        <div>Owner: {this.state.owner}</div>
+        <div>Account: {this.state.accounts[0]}</div>
+        <div>Token Amount: {this.state.Token}</div>
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Grid container spacing={3}>
             {posts.map((post) => (

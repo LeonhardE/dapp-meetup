@@ -114,7 +114,7 @@ function DashboardContent() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Test!!!!
+              Create Events
             </Typography>
           </Toolbar>
         </AppBar>
