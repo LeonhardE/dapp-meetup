@@ -142,10 +142,10 @@ class HandleOwnedEvents extends Component {
                     </CardContent>
                   </CardActionArea>
                   <CardActions>
-                    <form onSubmit={this.handleDelete}>
+                    {/* <form onSubmit={this.handleDelete}>
                       <input type="hidden" name="id" value={eventID} />
                       <input type="submit" value="Delete" />
-                    </form>
+                    </form> */}
                   </CardActions>
                 </Card>
               </Grid>
