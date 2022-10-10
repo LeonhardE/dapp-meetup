@@ -1,7 +1,7 @@
 # dapp-meetup
  CSC2125 Project
 
-[documentation](https://leonharde.github.io/documents/CSC2125_Report.pdf)
+[documentation](https://leonharde.github.io/static/files/CSC2125_Report.pdf)
 
 ## Usage
 
@@ -21,12 +21,12 @@
 
 ## Preview
 
-![image1](https://LeonhardE.github.io/images/meetup/image1.png)
+![image1](https://LeonhardE.github.io/static/files/meetup/image1.png)
 
-![image2](https://LeonhardE.github.io/images/meetup/image2.png)
+![image2](https://LeonhardE.github.io/static/files/meetup/image2.png)
 
-![image3](https://LeonhardE.github.io/images/meetup/image3.png)
+![image3](https://LeonhardE.github.io/static/files/meetup/image3.png)
 
-![image4](https://LeonhardE.github.io/images/meetup/image4.png)
+![image4](https://LeonhardE.github.io/static/files/meetup/image4.png)
 
-![image5](https://LeonhardE.github.io/images/meetup/image5.png)
+![image5](https://LeonhardE.github.io/static/files/meetup/image5.png)
